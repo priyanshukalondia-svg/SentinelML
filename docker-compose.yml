@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sentinelml-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: sentinel
+      POSTGRES_DB: sentinelml
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel -d sentinelml"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mlflow:
+    image: python:3.12-slim
+    container_name: sentinelml-mlflow
+    restart: unless-stopped
+    working_dir: /mlflow
+    command: >
+      bash -c "pip install --no-cache-dir mlflow==2.16.2 &&
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri file:/mlflow/mlruns
+      --default-artifact-root file:/mlflow/mlruns"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sentinelml-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://sentinel:sentinel@postgres:5432/sentinelml
+      MLFLOW_TRACKING_URI: file:/app/mlruns
+      DATA_DIR: /app/ml/datasets
+      MODEL_STORE_DIR: /app/ml/models
+      CORS_ALLOWED_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
+      DEMO_MODE: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./ml/datasets:/app/ml/datasets
+      - ./ml/models:/app/ml/models
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+        VITE_WS_URL: ws://localhost:8000/api/v1/ws/events
+    container_name: sentinelml-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  postgres_data:
