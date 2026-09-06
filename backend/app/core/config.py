@@ -40,6 +40,7 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://localhost:3000",
         "http://frontend:5173",
+        "https://sentinelml.vercel.app",
     ]
 
     # --- Monitoring ---

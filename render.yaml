@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: sentinelml-api
+    runtime: docker
+    rootDir: backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ENV
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: DATABASE_URL
+        value: sqlite:////tmp/sentinelml.db
+      - key: DATA_DIR
+        value: /tmp/sentinelml-data
+      - key: MODEL_STORE_DIR
+        value: /tmp/sentinelml-models
+      - key: MLFLOW_TRACKING_URI
+        value: file:/tmp/sentinelml-mlruns
+      - key: MLFLOW_ARTIFACT_ROOT
+        value: /tmp/sentinelml-mlruns
+      - key: CORS_ALLOWED_ORIGINS
+        value: '["https://sentinelml-web.onrender.com"]'
+      - key: SECRET_KEY
+        generateValue: true
+
+  - type: web
+    name: sentinelml-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://sentinelml-api.onrender.com/api/v1
+      - key: VITE_WS_URL
+        value: wss://sentinelml-api.onrender.com/api/v1/ws/events

@@ -1,4 +1,9 @@
-const API_BASE_URL: string = (import.meta as any).env?.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+const configuredApiBaseUrl = (import.meta as any).env?.VITE_API_BASE_URL?.trim();
+const API_BASE_URL: string = configuredApiBaseUrl || (
+  (import.meta as any).env?.PROD
+    ? `${window.location.origin}/api/v1`
+    : "http://127.0.0.1:8000/api/v1"
+);
 
 export class ApiError extends Error {
   status: number;
@@ -99,4 +104,5 @@ export const api = {
     request<any>("/config", { method: "PATCH", body: JSON.stringify(patch) }),
 };
 
-export const WS_URL: string = (import.meta as any).env?.VITE_WS_URL || "ws://127.0.0.1:8000/api/v1/ws/events";
+const configuredWsUrl = (import.meta as any).env?.VITE_WS_URL?.trim();
+export const WS_URL: string = configuredWsUrl || `${API_BASE_URL.replace(/^http/, "ws")}/ws/events`;
