@@ -48,6 +48,7 @@ export const api = {
     form.append("target_column", targetColumn);
     return request<import("../types").Dataset>("/datasets/upload", { method: "POST", body: form });
   },
+  loadDefaultDataset: () => request<import("../types").Dataset>("/datasets/default", { method: "POST" }),
 
   // Training
   startTraining: (datasetId: number, models: string[]) =>

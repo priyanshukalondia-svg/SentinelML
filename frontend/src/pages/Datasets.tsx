@@ -1,4 +1,4 @@
-import { Database, Upload } from "lucide-react";
+import { Database, Sparkles, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Card, CardHeader, EmptyState, SkeletonCard } from "../components/Primitives";
 import { PageHeader } from "../components/AppShell";
@@ -18,6 +18,7 @@ export default function Datasets({ refreshKey }: { refreshKey: number }) {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [loadingDefault, setLoadingDefault] = useState(false);
   const [targetColumn, setTargetColumn] = useState("fraud");
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [trainingDatasetId, setTrainingDatasetId] = useState<number | null>(null);
@@ -51,6 +52,23 @@ export default function Datasets({ refreshKey }: { refreshKey: number }) {
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleDefaultDataset() {
+    setLoadingDefault(true);
+    try {
+      const dataset = await api.loadDefaultDataset();
+      push({
+        tone: "success",
+        title: "Demo dataset ready",
+        description: `${dataset.row_count.toLocaleString()} rows loaded. Train a model to explore SentinelML.`,
+      });
+      load();
+    } catch (err: any) {
+      push({ tone: "error", title: "Could not load demo dataset", description: err.message });
+    } finally {
+      setLoadingDefault(false);
     }
   }
 
@@ -96,6 +114,10 @@ export default function Datasets({ refreshKey }: { refreshKey: number }) {
               onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
             />
           </label>
+          <button className="btn-secondary" disabled={uploading || loadingDefault} onClick={handleDefaultDataset}>
+            <Sparkles size={16} />
+            {loadingDefault ? "Loading demo…" : "Try with demo dataset"}
+          </button>
         </div>
       </Card>
 

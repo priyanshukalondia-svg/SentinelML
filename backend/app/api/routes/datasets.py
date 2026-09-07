@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.db_models import Dataset
 from app.schemas.schemas import DatasetSummary
+from app.services.default_dataset import build_default_dataset
 from app.services.dataset_service import ingest_dataset
 
 router = APIRouter(prefix="/api/v1/datasets", tags=["datasets"])
@@ -42,3 +43,12 @@ async def upload_dataset(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail={"error": "UPLOAD_FAILED", "message": str(exc)}) from exc
     return dataset
+
+
+@router.post("/default", response_model=DatasetSummary)
+def load_default_dataset(db: Session = Depends(get_db)):
+    """Load the built-in fraud dataset through the normal ingestion path."""
+    try:
+        return ingest_dataset(db, "sentinelml_default_transactions.csv", build_default_dataset(), target_column="fraud")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail={"error": "DEFAULT_DATASET_FAILED", "message": str(exc)}) from exc

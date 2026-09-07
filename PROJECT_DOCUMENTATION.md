@@ -20,6 +20,7 @@ The central idea is that a machine-learning model should not be treated as finis
 SentinelML provides:
 
 - Dataset upload, validation, versioning, and reference-dataset selection.
+- A built-in demo fraud dataset that can be loaded from the Datasets page without uploading a file.
 - Training of Logistic Regression, Random Forest, SVM, and XGBoost when available.
 - Evaluation using accuracy, precision, recall, F1, ROC AUC, PR AUC, training time, and inference latency.
 - MLflow experiment tracking for parameters, metrics, and dataset version tags.
@@ -256,6 +257,7 @@ The main SQLAlchemy tables are:
 - `GET /api/v1/datasets`
 - `GET /api/v1/datasets/{dataset_id}`
 - `POST /api/v1/datasets/upload`
+- `POST /api/v1/datasets/default` - Load the built-in demo dataset
 - `POST /api/v1/training/start`
 - `GET /api/v1/training`
 - `GET /api/v1/training/{run_id}`
