@@ -70,7 +70,7 @@ function AppInner() {
   return (
     <AppShell connected={connected} activeModel={activeModel}>
       <Routes>
-        <Route path="/" element={<Overview refreshKey={refreshKey} />} />
+        <Route path="/" element={<Datasets refreshKey={refreshKey} />} />
         <Route path="/models" element={<Models refreshKey={refreshKey} />} />
         <Route path="/models/:id" element={<ModelDetail />} />
         <Route path="/experiments" element={<Experiments refreshKey={refreshKey} />} />

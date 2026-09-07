@@ -42,6 +42,7 @@ class Settings(BaseSettings):
         "http://frontend:5173",
         "https://sentinelml.vercel.app",
     ]
+    CORS_ALLOWED_ORIGIN_REGEX: str = r"https://.*\.vercel\.app"
 
     # --- Monitoring ---
     MONITORING_INTERVAL_SECONDS: int = 60
