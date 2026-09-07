@@ -1,7 +1,7 @@
 const configuredApiBaseUrl = (import.meta as any).env?.VITE_API_BASE_URL?.trim();
 const API_BASE_URL: string = configuredApiBaseUrl || (
   (import.meta as any).env?.PROD
-    ? `${window.location.origin}/api/v1`
+    ? "https://sentinelml-api.onrender.com/api/v1"
     : "http://127.0.0.1:8000/api/v1"
 );
 
